@@ -1,0 +1,213 @@
+/* Estilos generales */
+.equipos-container {
+    font-family: "Arial", sans-serif;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    background: #1e1e2f;
+    color: #ffffff;
+    border-radius: 10px;
+    margin-top: 40px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+/* Encabezado */
+.equipos-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    color: black;
+}
+
+/* Botones de administración */
+.admin-buttons button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-left: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.admin-buttons button:hover {
+    background: #0056b3;
+}
+
+/* Filtros */
+.filtros-container {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.filtros-container select,
+.filtros-container input {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    flex: 1;
+    font-size: 14px;
+}
+
+/* Botón de crear equipo */
+.crear-equipo {
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.crear-equipo button {
+    background: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.crear-equipo button:hover {
+    background: #218838;
+}
+
+/* Tabla */
+.tabla-container {
+    overflow-x: auto;
+    background: #252535;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.tabla-equipos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    color: white;
+}
+
+.tabla-equipos th,
+.tabla-equipos td {
+    border: 1px solid #444;
+    padding: 12px;
+    text-align: left;
+}
+
+.tabla-equipos th {
+    background: #007bff;
+    color: white;
+}
+
+.tabla-equipos tr:nth-child(even) {
+    background: #2e2e42;
+}
+
+/* Botón eliminar */
+.btn-eliminar-equipo {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-eliminar-equipo:hover {
+    background: #c82333;
+}
+
+/* Botones del modal */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-guardar {
+    background: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-cerrar {
+    background: #dc3545;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.btn-guardar:hover {
+    background: #218838;
+}
+
+.btn-cerrar:hover {
+    background: #c82333;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 🔹 Agrupar las acciones */
+.action-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* 🎯 Botón de quitar equipo */
+.btn-remove-team {
+    background: #ffcc00;
+    color: black;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-remove-team:hover {
+    background: #e6b800;
+}
+
+/* 🎯 Botón de eliminar jugador */
+.btn-remove-player {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-remove-player:hover {
+    background: #c0392b;
+}
+
+/* 🎯 Botón de editar */
+.btn-edit-player {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-edit-player:hover {
+    background: #2980b9;
+}
