@@ -7,7 +7,7 @@ import injectContext from "./store/appContext.jsx";
 // Pages
 import Register from "./pages/Register";
 import Attendance from "./pages/Attendance";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/Admindashboard";
 import AdminJugadores from "./pages/AdminJugadores";
 import Hestable from "./pages/Hestable";
 import AicDashboard from "./pages/AicDashboard";
