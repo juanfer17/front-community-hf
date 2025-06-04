@@ -13,12 +13,20 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Extraer modalidad del primer segmento de la URL (ej. "/hfa/...")
   const modalidad = location.pathname.split("/")[1];
   const modalidadUpper = modalidad ? modalidad.toUpperCase() : "";
 
   const toggleMenu = () => {
     setIsOpen((prev) => !prev);
+  };
+
+  const isAdmin = () => {
+    const roles = store.roles || [];
+
+    return roles.some((r) => {
+      const roleName = typeof r === "string" ? r.toLowerCase() : (r.role || "").toLowerCase();
+      return roleName === "admin" || roleName === "superadmin";
+    });
   };
 
   useEffect(() => {
@@ -62,7 +70,7 @@ export const Navbar = () => {
             <div className="dropdown-menu" ref={menuRef}>
               {store.token ? (
                   <>
-                    {(store.role === "admin" || store.role === "superadmin") && (
+                    {isAdmin() && (
                         <div className="menu-item" onClick={() => navigate("/admin")}>
                           <Shield size={18} /> <span>Administración</span>
                         </div>

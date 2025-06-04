@@ -26,10 +26,33 @@ const ConvocatoriasYOfertas = () => {
     useEffect(() => {
         if (!jugadorId || !modalidadNormalizada) return;
 
-        const role = localStorage.getItem("role");
-        if (role && role.toLowerCase() === "dt") {
+        const rolesJson = localStorage.getItem("roles");
+        let isDT = false;
+
+        if (rolesJson) {
+            try {
+                const roles = JSON.parse(rolesJson);
+                console.log("Roles parseados:", roles);
+                console.log("Modalidad Normalizada:", modalidadNormalizada);
+
+                isDT = roles.some(
+                    (r) =>
+                        r.role.toLowerCase() === "dt" &&
+                        r.modalityName.toLowerCase() === modalidadNormalizada.toLowerCase()
+                );
+            } catch (e) {
+                console.error("Error parsing roles from localStorage", e);
+            }
+        } else {
+            console.warn("No se encontró la clave 'roles' en localStorage");
+        }
+
+        console.log("¿Es DT en esta modalidad?:", isDT);
+
+        if (isDT) {
+            console.log("Estás como DT, obteniendo equipos...");
             setLoading(true);
-            actions.getEquiposPorDT(modalidadNormalizada , jugadorId)
+            actions.getEquiposPorDT(modalidadNormalizada, jugadorId)
                 .then((equipos) => {
                     setEquipos(equipos);
                     if (equipos.length > 0) {

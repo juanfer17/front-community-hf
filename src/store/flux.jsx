@@ -526,13 +526,18 @@ const getState = ({ getStore, getActions, setStore }) => {
             getEquiposPorDT: async (modalidad, dtId) => {
                 try {
                     const token = localStorage.getItem("token");
-                    const role = localStorage.getItem("role");
-
+                    const rolesJson = localStorage.getItem("roles"); // asumiendo que guardas roles como JSON string
                     if (!token) {
                         throw new Error("No hay token disponible. Por favor, inicia sesión nuevamente.");
                     }
-
-                    if (!role || role.toLowerCase() !== "dt") {
+                    if (!rolesJson) {
+                        throw new Error("No tienes permisos para acceder a esta información.");
+                    }
+                    const roles = JSON.parse(rolesJson);
+                    const hasDtRoleForModality = roles.some(r =>
+                        r.role.toLowerCase() === "dt" && r.modalityName.toLowerCase() === modalidad.toLowerCase()
+                    );
+                    if (!hasDtRoleForModality) {
                         throw new Error("No tienes permisos para acceder a esta información.");
                     }
 
@@ -778,29 +783,33 @@ const getState = ({ getStore, getActions, setStore }) => {
                 try {
                     const response = await fetch(`${BACKEND_URL}/login`, {
                         method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify({email, password})
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email, password })
                     });
 
                     const data = await response.json();
 
                     if (response.ok) {
                         localStorage.setItem("token", data.token);
-                        localStorage.setItem("role", data.role);
-                        localStorage.setItem("jugadorId", data.id);  // 🔹 Usa 'id' en lugar de 'jugador_id'
+                        localStorage.setItem("jugadorId", data.id);
+                        localStorage.setItem("nickHabbo", data.nickHabbo || "");
+
+                        // 🔸 Guarda todos los roles como JSON string
+                        localStorage.setItem("roles", JSON.stringify(data.roles));
 
                         setStore({
                             token: data.token,
-                            role: data.role,
-                            jugadorId: data.id  // 🔹 Guarda correctamente en el store
+                            jugadorId: data.id,
+                            nickHabbo: data.nickHabbo,
+                            roles: data.roles
                         });
 
-                        return {success: true, message: "Inicio de sesión exitoso"};
+                        return { success: true, message: "Inicio de sesión exitoso" };
                     } else {
-                        return {success: false, message: data.message || "Credenciales incorrectas."};
+                        return { success: false, message: data.message || "Credenciales incorrectas." };
                     }
                 } catch (error) {
-                    return {success: false, message: "Error de conexión con el servidor"};
+                    return { success: false, message: "Error de conexión con el servidor" };
                 }
             },
 

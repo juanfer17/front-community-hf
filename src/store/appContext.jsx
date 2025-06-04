@@ -1,45 +1,55 @@
 import React, { useState, useEffect } from "react";
 import getState from "./flux.jsx";
 
-// Don't change, here is where we initialize our context, by default it's just going to be null.
 export const Context = React.createContext(null);
 
-// This function injects the global store to any view/component where you want to use it, we will inject the context to layout.js, you can see it here:
-// https://github.com/4GeeksAcademy/react-hello-webapp/blob/master/src/js/layout.js#L35
 const injectContext = PassedComponent => {
 	const StoreWrapper = props => {
-		//this will be passed as the contenxt value
-		const [state, setState] = useState(
-			getState({
-				getStore: () => state.store,
-				getActions: () => state.actions,
-				setStore: updatedStore =>
-					setState({
-						store: Object.assign(state.store, updatedStore),
-						actions: { ...state.actions }
-					})
-			})
-		);
+		// Creamos un estado local para loading
+		const [loading, setLoading] = useState(true);
 
+		// Estado inicial para el store
+		const initialState = getState({
+			getStore: () => store.store,
+			getActions: () => store.actions,
+			setStore: updatedStore => setStore(prev => ({ store: { ...prev.store, ...updatedStore }, actions: { ...prev.actions } })),
+		});
+
+		const [store, setStore] = useState(initialState);
+
+		// useEffect para cargar el localStorage solo una vez al montar
 		useEffect(() => {
-			/**
-			 * EDIT THIS!
-			 * This function is the equivalent to "window.onLoad", it only runs once on the entire application lifetime
-			 * you should do your ajax requests or fetch api requests here. Do not use setState() to save data in the
-			 * store, instead use actions, like this:
-			 **/
-			
+			const token = localStorage.getItem("token");
+			const jugadorId = localStorage.getItem("jugadorId");
+			const nickHabbo = localStorage.getItem("nickHabbo");
+			const roles = JSON.parse(localStorage.getItem("roles") || "[]");
+
+			if (token) {
+				setStore(prev => ({
+					...prev,
+					store: {
+						...prev.store,
+						token,
+						jugadorId,
+						nickHabbo,
+						roles
+					}
+				}));
+			}
+			setLoading(false);
 		}, []);
 
-		// The initial value for the context is not null anymore, but the current state of this component,
-		// the context will now have a getStore, getActions and setStore functions available, because they were declared
-		// on the state of this component
+		if (loading) {
+			return <div>Cargando...</div>; // Mejor un spinner real si quieres UX más limpia
+		}
+
 		return (
-			<Context.Provider value={state}>
+			<Context.Provider value={store}>
 				<PassedComponent {...props} />
 			</Context.Provider>
 		);
 	};
+
 	return StoreWrapper;
 };
 
