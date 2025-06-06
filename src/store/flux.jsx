@@ -966,14 +966,13 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            registrarPartido: async (partidoData) => {
+            registrarPartido: async (modalidad, partidoData) => {
                 try {
-                    const response = await secureFetch(BACKEND_URL + "/partidos", {
+                    const response = await secureFetch(`${BACKEND_URL}/${modalidad}/matches`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
-
                         },
                         body: JSON.stringify(partidoData),
                     });

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Context } from "../store/appContext.jsx";
+import { useNavigate } from "react-router-dom";
 import "../styles/partidos.css";
 
 const RegistroPartido = () => {
     const { store, actions } = useContext(Context);
+    const navigate = useNavigate();
 
 
     const [torneoId, setTorneoId] = useState("");
@@ -162,25 +164,26 @@ const RegistroPartido = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // Obtener la modalidad seleccionada
+        const modalidadSeleccionada = roles.find(rol => rol.role === selectedRole)?.modalityName;
+        if (!modalidadSeleccionada) {
+            alert("❌ Debes seleccionar una modalidad.");
+            return;
+        }
+
+        // Crear el DTO según la estructura requerida por el backend
         const partidoData = {
-            torneo_id: Number(torneoId) || 0,
-            equipo_a_id: Number(equipoAId) || 0,
-            equipo_b_id: Number(equipoBId) || 0,
-            juez: juez.trim() || "Desconocido",
-            ...(selectedRole === "ARBITRO" && { rol: selectedRole }),
-            goles_equipo_a: Number(golesEquipoA) || 0,
-            goles_equipo_b: Number(golesEquipoB) || 0,
-            estadisticas: Object.entries(estadisticas).map(([jugador_id, stats]) => ({
-                jugador_id: Number(jugador_id),
-                goles: stats.goles || 0,
-                asistencias: stats.asistencias || 0,
-                autogoles: stats.autogoles || 0
-            })),
-            mvp_id: Number(mvp) || 0,
-            mencion_equipo_a_id: Number(mencionA) || 0,
-            mencion_equipo_b_id: Number(mencionB) || 0,
-            observaciones: observaciones.trim() || "Sin observaciones",
-            link_video: linkVideo.startsWith("http") ? linkVideo.trim() : null,
+            tournamentId: Number(torneoId) || 0,
+            teamAId: Number(equipoAId) || 0,
+            teamBId: Number(equipoBId) || 0,
+            referee: juez.trim() || "Desconocido",
+            goalsTeamA: Number(golesEquipoA) || 0,
+            goalsTeamB: Number(golesEquipoB) || 0,
+            mvpId: Number(mvp) || 0,
+            mentionTeamAId: Number(mencionA) || 0,
+            mentionTeamBId: Number(mencionB) || 0,
+            videoLink: linkVideo.startsWith("http") ? linkVideo.trim() : null,
+            observations: observaciones.trim() || "Sin observaciones",
         };
 
         console.log("📤 Enviando datos al backend:", JSON.stringify(partidoData, null, 2));
@@ -190,9 +193,10 @@ const RegistroPartido = () => {
             return;
         }
 
-        const resultado = await actions.registrarPartido(partidoData);
+        const resultado = await actions.registrarPartido(modalidadSeleccionada, partidoData);
         if (resultado.success) {
             alert("✅ Partido registrado con éxito");
+            navigate("/"); // Redireccionar al home después de un registro exitoso
         } else {
             alert(`${resultado.message}`);
         }
