@@ -108,6 +108,117 @@ button.registro-button:hover {
     width: 100%;
     font-size: 20px;
     font-weight: bold;
-    
+
 }
 
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.form-row .registro-form-section,
+.form-row .form-section {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.form-row .registro-form-section:last-child,
+.form-row .form-section:last-child {
+    margin-right: 0;
+}
+
+/* Estilos para la selección de jugadores */
+.jugadores-seleccion-container {
+    width: 100%;
+    margin-bottom: 20px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.jugadores-seleccion-container h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #007bff;
+    font-size: 16px;
+}
+
+.jugadores-seleccion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.jugador-checkbox {
+    display: flex;
+    align-items: center;
+    background: #f0f8ff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #cce5ff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.jugador-checkbox:hover {
+    background: #e6f3ff;
+    border-color: #99caff;
+}
+
+.jugador-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.jugador-nombre {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Estilos para las estadísticas de jugadores */
+.estadisticas-inputs {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.estadisticas-inputs input {
+    width: 80px;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #cce5ff;
+    border-radius: 4px;
+}
+
+.jugador {
+    background-color: #f8f9fa;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.jugador span {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #007bff;
+}
+
+/* Estilos para los grupos de inputs */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.input-group label {
+    font-size: 12px;
+    margin-bottom: 3px;
+    color: #6c757d;
+    font-weight: normal;
+}
