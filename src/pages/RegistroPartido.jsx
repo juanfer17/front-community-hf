@@ -200,6 +200,7 @@ const RegistroPartido = () => {
             }
         });
 
+
         // Crear el DTO según la estructura requerida por el backend
         const partidoData = {
             tournamentId: Number(torneoId) || 0,
