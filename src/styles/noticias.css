@@ -114,6 +114,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: auto;
 }
 
 /* =======================
@@ -220,6 +221,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  pointer-events: auto !important;
+  z-index: 1001 !important;
 }
 
 .modal-carta.crear h3 {
@@ -659,6 +662,9 @@
 
 .ql-editor {
   min-height: 200px;
+  pointer-events: auto !important;
+  z-index: 9999 !important;
+  cursor: text !important;
 }
 
 

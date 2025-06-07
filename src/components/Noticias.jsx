@@ -149,13 +149,51 @@ const Noticias = () => {
                         toolbar.style.zIndex = "101";
                     }
 
-                    // Force focus on the editor
+                    // Force focus on the editor with multiple attempts
                     try {
-                        editor.focus();
-                        console.log("Editor focused successfully");
+                        // Ensure the editor is enabled before focusing
+                        editor.enable(true);
+                        console.log("Editor enabled");
 
-                        // Enable keyboard input explicitly
-                        editor.enable();
+                        // First focus attempt immediately
+                        editor.focus();
+                        console.log("First focus attempt");
+
+                        // Set a timeout to ensure the DOM has updated before focusing again
+                        setTimeout(() => {
+                            try {
+                                editor.enable(true);
+                                editor.focus();
+                                console.log("Editor focused successfully (attempt 2)");
+
+                                // Ensure the cursor is visible by setting selection at the end
+                                const length = editor.getLength();
+                                editor.setSelection(length, 0);
+                            } catch (e) {
+                                console.warn("Focus attempt 2 failed:", e);
+                            }
+                        }, 100);
+
+                        // Third attempt after a longer delay
+                        setTimeout(() => {
+                            try {
+                                editor.enable(true);
+                                editor.focus();
+                                console.log("Editor focused successfully (attempt 3)");
+
+                                // Ensure the cursor is visible by setting selection at the end
+                                const length = editor.getLength();
+                                editor.setSelection(length, 0);
+
+                                // Force the editor to be interactive
+                                editor.root.setAttribute("contenteditable", "true");
+                                editor.root.style.pointerEvents = "auto";
+                                editor.root.style.cursor = "text";
+                                editor.root.style.zIndex = "9999";
+                            } catch (e) {
+                                console.warn("Focus attempt 3 failed:", e);
+                            }
+                        }, 300);
                     } catch (focusError) {
                         console.warn("Could not focus editor:", focusError);
                     }
@@ -178,6 +216,7 @@ const Noticias = () => {
 
         return () => setInitDone(false);
     }, [mostrarModalCrear]);
+
 
     // Add a similar effect for the edit modal
     useEffect(() => {
@@ -225,13 +264,51 @@ const Noticias = () => {
                         toolbar.style.zIndex = "101";
                     }
 
-                    // Force focus on the editor
+                    // Force focus on the editor with multiple attempts
                     try {
-                        editor.focus();
-                        console.log("Edit editor focused successfully");
+                        // Ensure the editor is enabled before focusing
+                        editor.enable(true);
+                        console.log("Edit editor enabled");
 
-                        // Enable keyboard input explicitly
-                        editor.enable();
+                        // First focus attempt immediately
+                        editor.focus();
+                        console.log("First focus attempt for edit editor");
+
+                        // Set a timeout to ensure the DOM has updated before focusing again
+                        setTimeout(() => {
+                            try {
+                                editor.enable(true);
+                                editor.focus();
+                                console.log("Edit editor focused successfully (attempt 2)");
+
+                                // Ensure the cursor is visible by setting selection at the end
+                                const length = editor.getLength();
+                                editor.setSelection(length, 0);
+                            } catch (e) {
+                                console.warn("Edit focus attempt 2 failed:", e);
+                            }
+                        }, 100);
+
+                        // Third attempt after a longer delay
+                        setTimeout(() => {
+                            try {
+                                editor.enable(true);
+                                editor.focus();
+                                console.log("Edit editor focused successfully (attempt 3)");
+
+                                // Ensure the cursor is visible by setting selection at the end
+                                const length = editor.getLength();
+                                editor.setSelection(length, 0);
+
+                                // Force the editor to be interactive
+                                editor.root.setAttribute("contenteditable", "true");
+                                editor.root.style.pointerEvents = "auto";
+                                editor.root.style.cursor = "text";
+                                editor.root.style.zIndex = "9999";
+                            } catch (e) {
+                                console.warn("Edit focus attempt 3 failed:", e);
+                            }
+                        }, 300);
                     } catch (focusError) {
                         console.warn("Could not focus edit editor:", focusError);
                     }
@@ -457,14 +534,22 @@ const Noticias = () => {
                 <h2 className="noticias-titulo">📰 Últimas Noticias</h2>
 
                 {tieneRolPermitido() && (
-                    <button className="btn-crear-noticia" onClick={() => setMostrarModalCrear(true)}>+ Crear Noticia</button>
+                    <button className="btn-crear-noticia" onClick={() => {
+                        // Clear any previous content
+                        setNuevaNoticia({ titulo: "", contenido: "" });
+
+                        // Small delay to ensure DOM is ready
+                        setTimeout(() => {
+                            setMostrarModalCrear(true);
+                        }, 50);
+                    }}>+ Crear Noticia</button>
                 )}
 
                 <div className="noticias-grid">
                     {store?.noticias?.length > 0 ? (
                         store.noticias.map((noticia) => (
-                            <div 
-                                key={noticia.id} 
+                            <div
+                                key={noticia.id}
                                 className="noticia-preview-card"
                                 onClick={() => {
                                     setNoticiaVer(noticia);
@@ -475,23 +560,29 @@ const Noticias = () => {
                                 <h4>{noticia.title}</h4>
                                 {tieneRolPermitido() && (
                                     <div className="noticia-actions">
-                                        <button 
-                                            className="btn-editar" 
+                                        <button
+                                            className="btn-editar"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Prevent triggering the parent's onClick
+
+                                                // Set the noticia to edit
                                                 setNoticiaEditar({
                                                     id: noticia.id,
                                                     titulo: noticia.title,
                                                     contenido: noticia.content
                                                 });
-                                                setMostrarModalEditar(true);
-                                                console.log("Editando noticia:", noticia);
+
+                                                // Small delay to ensure DOM is ready
+                                                setTimeout(() => {
+                                                    setMostrarModalEditar(true);
+                                                    console.log("Editando noticia:", noticia);
+                                                }, 50);
                                             }}
                                         >
                                             Editar
                                         </button>
-                                        <button 
-                                            className="btn-eliminar" 
+                                        <button
+                                            className="btn-eliminar"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Prevent triggering the parent's onClick
                                                 handleEliminarNoticia(noticia.id);
@@ -509,7 +600,7 @@ const Noticias = () => {
                 </div>
 
                 {mostrarModalCrear && (
-                    <div className="modal-overlay" onClick={(e) => e.preventDefault()}>
+                    <div className="modal-overlay">
                         <div className="modal-carta crear" onClick={(e) => e.stopPropagation()}>
                             <span className="modal-cerrar" onClick={() => setMostrarModalCrear(false)}>&times;</span>
                             <h3>Nueva Noticia</h3>
@@ -522,12 +613,22 @@ const Noticias = () => {
                             />
 
                             <ReactQuill
-                                key={`editor-create-${mostrarModalCrear}-${Date.now()}`}
+                                key={`editor-create-${Date.now()}`}
                                 ref={quillRef}
                                 className="editor-noticia quill-visible"
                                 theme="snow"
+                                readOnly={false}
+                                tabIndex={0}
                                 value={nuevaNoticia.contenido}
                                 onChange={(value) => setNuevaNoticia(prev => ({ ...prev, contenido: value }))}
+                                preserveWhitespace={true}
+                                style={{
+                                    minHeight: "250px",
+                                    zIndex: 9999,
+                                    position: "relative",
+                                    pointerEvents: "auto",
+                                    cursor: "text"
+                                }}
                                 modules={{
                                     toolbar: {
                                         container: [
@@ -548,8 +649,8 @@ const Noticias = () => {
                                         matchVisual: false
                                     },
                                     history: {
-                                        delay: 1000,
-                                        maxStack: 100,
+                                        delay: 500,
+                                        maxStack: 500,
                                         userOnly: true
                                     },
                                     keyboard: {
@@ -568,7 +669,7 @@ const Noticias = () => {
                 )}
 
                 {mostrarModalEditar && noticiaEditar && (
-                    <div className="modal-overlay" onClick={(e) => e.preventDefault()}>
+                    <div className="modal-overlay">
                         <div className="modal-carta crear" onClick={(e) => e.stopPropagation()}>
                             <span className="modal-cerrar" onClick={() => setMostrarModalEditar(false)}>&times;</span>
                             <h3>Editar Noticia</h3>
@@ -581,12 +682,22 @@ const Noticias = () => {
                             />
 
                             <ReactQuill
-                                key={`editor-edit-${mostrarModalEditar}-${Date.now()}`}
+                                key={`editor-edit-${Date.now()}`}
                                 ref={quillEditRef}
                                 className="editor-noticia quill-visible"
                                 theme="snow"
+                                readOnly={false}
+                                tabIndex={0}
                                 value={noticiaEditar.contenido}
                                 onChange={(value) => setNoticiaEditar(prev => ({ ...prev, contenido: value }))}
+                                preserveWhitespace={true}
+                                style={{
+                                    minHeight: "250px",
+                                    zIndex: 9999,
+                                    position: "relative",
+                                    pointerEvents: "auto",
+                                    cursor: "text"
+                                }}
                                 modules={{
                                     toolbar: {
                                         container: [
@@ -607,8 +718,8 @@ const Noticias = () => {
                                         matchVisual: false
                                     },
                                     history: {
-                                        delay: 1000,
-                                        maxStack: 100,
+                                        delay: 500,
+                                        maxStack: 500,
                                         userOnly: true
                                     },
                                     keyboard: {
@@ -628,11 +739,11 @@ const Noticias = () => {
 
                 {/* Modal para ver el contenido completo de una noticia */}
                 {mostrarModalVer && noticiaVer && (
-                    <div className="modal-overlay" onClick={(e) => e.preventDefault()}>
+                    <div className="modal-overlay">
                         <div className="modal-carta ver" onClick={(e) => e.stopPropagation()}>
                             <span className="modal-cerrar" onClick={() => setMostrarModalVer(false)}>&times;</span>
                             <h3>{noticiaVer.title}</h3>
-                            <div 
+                            <div
                                 className="noticia-contenido"
                                 dangerouslySetInnerHTML={{ __html: noticiaVer.content }}
                             />
