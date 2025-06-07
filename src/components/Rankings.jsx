@@ -68,93 +68,100 @@ const Rankings = () => {
             ) : torneoSeleccionado ? (
                 <>
                     <div className="rankings-wrapper">
-
-                        {/* Tabla de Equipos */}
+                        {/* Tabla de Equipos (Arriba, ancho completo) */}
                         {torneoSeleccionado.formato !== "eliminacion_directa" && (
-                            <>
+                            <div className="rankings-table-container-full">
                                 <h3>Tabla de Equipos</h3>
-                                <div className="rankings-table-container">
-                                    <table className="rankings-table">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th><th>Equipo</th><th>PJ</th><th>G</th>
-                                                <th>E</th><th>P</th><th>GF</th>
-                                                <th>GC</th><th>DG</th><th className="pts-column">PTS</th>
+                                <table className="rankings-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th><th>Equipo</th><th>PJ</th><th>G</th>
+                                            <th>E</th><th>P</th><th>GF</th>
+                                            <th>GC</th><th>DG</th><th className="pts-column">PTS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {store.tablaEquipos?.map((equipo, index) => (
+                                            <tr key={index}>
+                                                <td className="team-rank">{index + 1}</td>
+                                                <td>{equipo.teamName}</td>
+                                                <td>{equipo.matchesPlayed}</td>
+                                                <td>{equipo.matchesWon}</td>
+                                                <td>{equipo.matchesDrawn}</td>
+                                                <td>{equipo.matchesLost}</td>
+                                                <td>{equipo.goalsFor}</td>
+                                                <td>{equipo.goalsAgainst}</td>
+                                                <td>{equipo.goalDifference}</td>
+                                                <td className="pts-column">{equipo.points}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            {store.tablaEquipos?.map((equipo, index) => (
-                                                <tr key={index}>
-                                                    <td className="team-rank">{index + 1}</td>
-                                                    <td>{equipo.teamName}</td>
-                                                    <td>{equipo.matchesPlayed}</td>
-                                                    <td>{equipo.matchesWon}</td>
-                                                    <td>{equipo.matchesDrawn}</td>
-                                                    <td>{equipo.matchesLost}</td>
-                                                    <td>{equipo.goalsFor}</td>
-                                                    <td>{equipo.goalsAgainst}</td>
-                                                    <td>{equipo.goalDifference}</td>
-                                                    <td className="pts-column">{equipo.points}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         )}
+
+                        {/* Fila 2: Goleadores y Asistidores */}
+                        {/* Tabla de Goleadores */}
+                        <div className="rankings-table-container">
+                            <h3>Máximos Goleadores</h3>
+                            <table className="rankings-table">
+                                <thead>
+                                    <tr><th>Jugador</th><th>Goles</th></tr>
+                                </thead>
+                                <tbody>
+                                    {store.tablaGoleadores?.slice(0, 10).map((jugador, index) => (
+                                        <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalGoals}</td></tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Tabla de Asistidores */}
+                        <div className="rankings-table-container">
+                            <h3>Máximos Asistidores</h3>
+                            <table className="rankings-table">
+                                <thead>
+                                    <tr><th>Jugador</th><th>Asistencias</th></tr>
+                                </thead>
+                                <tbody>
+                                    {store.tablaAsistidores?.slice(0, 10).map((jugador, index) => (
+                                        <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalAssists}</td></tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Fila 3: MVPs y Menciones */}
+                        {/* Tabla de MVPs */}
+                        <div className="rankings-table-container">
+                            <h3>Jugadores con más MVPs</h3>
+                            <table className="rankings-table">
+                                <thead>
+                                    <tr><th>Jugador</th><th>MVPs</th></tr>
+                                </thead>
+                                <tbody>
+                                    {store.tablaMvps?.slice(0, 10).map((jugador, index) => (
+                                        <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalMvpCount}</td></tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Tabla de Menciones */}
+                        <div className="rankings-table-container">
+                            <h3>Jugadores con más Menciones</h3>
+                            <table className="rankings-table">
+                                <thead>
+                                    <tr><th>Jugador</th><th>Menciones</th></tr>
+                                </thead>
+                                <tbody>
+                                    {store.tablaMenciones?.slice(0, 10).map((jugador, index) => (
+                                        <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalMentionsCount}</td></tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
-                    {/* Tabla de Goleadores */}
-                    <h3>Máximos Goleadores</h3>
-                    <table className="rankings-table">
-                        <thead>
-                            <tr><th>Jugador</th><th>Goles</th></tr>
-                        </thead>
-                        <tbody>
-                            {store.tablaGoleadores?.slice(0, 10).map((jugador, index) => (
-                                <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalGoals}</td></tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    {/* Tabla de Asistidores */}
-                    <h3>Máximos Asistidores</h3>
-                    <table className="rankings-table">
-                        <thead>
-                            <tr><th>Jugador</th><th>Asistencias</th></tr>
-                        </thead>
-                        <tbody>
-                            {store.tablaAsistidores?.slice(0, 10).map((jugador, index) => (
-                                <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalAssists}</td></tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    {/* Tabla de MVPs */}
-                    <h3>Jugadores con más MVPs</h3>
-                    <table className="rankings-table">
-                        <thead>
-                            <tr><th>Jugador</th><th>MVPs</th></tr>
-                        </thead>
-                        <tbody>
-                            {store.tablaMvps?.slice(0, 10).map((jugador, index) => (
-                                <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalMvpCount}</td></tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    {/* Tabla de Menciones */}
-                    <h3>Jugadores con más Menciones</h3>
-                    <table className="rankings-table">
-                        <thead>
-                            <tr><th>Jugador</th><th>Menciones</th></tr>
-                        </thead>
-                        <tbody>
-                            {store.tablaMenciones?.slice(0, 10).map((jugador, index) => (
-                                <tr key={index}><td>{jugador.nickHabbo}</td><td>{jugador.totalMentionsCount}</td></tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </>
             ) : (
                 <p>Selecciona un torneo para ver las tablas.</p>

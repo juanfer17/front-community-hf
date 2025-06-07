@@ -2,7 +2,7 @@
 .rankings-container {
     max-width: 1400px;
     margin: 20px auto;
-    padding: 20px;
+    padding: 35px;
     height: 85vh;
     /* 🔥 Fija altura para hacer scroll solo aquí */
     overflow-y: auto;
@@ -15,6 +15,14 @@
     border-radius: 12px;
     box-shadow: 0px 8px 15px rgba(255, 255, 255, 0.1);
     color: white;
+    /* Hide scrollbar but allow scrolling */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.rankings-container::-webkit-scrollbar {
+    display: none;
 }
 
 /* 🌟 Título del ranking */
@@ -52,8 +60,7 @@
     transform: scale(1.02);
 }
 
-
-/* 🌟 Selector de torneo */
+/* 🌟 Selector de torneo para resúmenes */
 .torneo-select-resumenes {
     width: 100%;
     padding: 12px;
@@ -74,10 +81,49 @@
     transform: scale(1.02);
 }
 
-/* 🌟 Tablas */
+/* 🌟 Wrapper para todas las tablas */
+.rankings-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 100%;
+    gap: 20px;
+}
+
+/* 🌟 Contenedor de tablas */
 .rankings-table-container {
+    width: calc(50% - 10px);
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    background: #1b1b1b;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+    overflow: hidden;
+}
+
+/* 🌟 Contenedor de tabla completa (100% ancho) */
+.rankings-table-container-full {
     width: 100%;
     margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    background: #1b1b1b;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
+    overflow: hidden;
+}
+
+/* 🌟 Títulos de las tablas */
+.rankings-table-container h3, .rankings-table-container-full h3 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin: 0;
+    padding: 15px;
+    background: #222;
+    border-bottom: 2px solid #FFD700;
 }
 
 /* 🌟 Diseño de tabla */
@@ -87,10 +133,8 @@
     background: #1b1b1b;
     /* ✅ Negro elegante */
     color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    font-size: 18px;
-    /* 🔥 Tamaño ideal */
+    font-size: 16px;
+    flex: 1;
 }
 
 /* 🔥 Encabezados */
@@ -99,7 +143,7 @@
     text-align: center;
     background: #222;
     font-weight: bold;
-    border-bottom: 3px solid #FFD700;
+    border-bottom: 2px solid #FFD700;
     /* 🏆 Oro */
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -110,7 +154,7 @@
 .rankings-table td {
     padding: 12px;
     text-align: center;
-    border-bottom: 1px solid #444;
+    border-bottom: 1px solid #333;
     transition: all 0.3s ease;
 }
 
@@ -131,9 +175,9 @@
     font-weight: bold;
     color: #FFD700;
     /* 🏆 Oro */
-    font-size: 22px;
+    font-size: 20px;
     /* 🔥 Más grande */
-    text-shadow: 2px 2px 5px rgba(255, 215, 0, 0.6);
+    text-shadow: 1px 1px 3px rgba(255, 215, 0, 0.6);
 }
 
 /* 🌟 Numeración de equipos */
@@ -141,7 +185,7 @@
     font-weight: bold;
     color: #FFD700;
     /* Oro */
-    font-size: 20px;
+    font-size: 18px;
 }
 
 /* 🔥 Animaciones suaves */
@@ -166,55 +210,89 @@
 /* 🌟 Responsividad */
 @media screen and (max-width: 768px) {
     .rankings-container {
-        padding: 15px;
+        padding: 25px;
+        margin: 10px;
         height: 80vh;
         /* ✅ Ajustar para móviles */
     }
 
+    .rankings-container h2 {
+        font-size: 22px;
+        margin-bottom: 15px;
+    }
+
     .torneo-select {
+        width: 90%;
         font-size: 14px;
         padding: 10px;
-        width: 80%;
+    }
+
+    .rankings-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .rankings-table-container,
+    .rankings-table-container-full {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .rankings-table-container h3,
+    .rankings-table-container-full h3 {
+        font-size: 18px;
+        padding: 10px;
     }
 
     .rankings-table th,
     .rankings-table td {
-        padding: 8px;
+        padding: 8px 5px;
         font-size: 14px;
+    }
+
+    .rankings-table .pts-column {
+        font-size: 16px;
+    }
+
+    .rankings-table .team-rank {
+        font-size: 15px;
     }
 }
 
-
+/* 🌟 Spinner para carga */
 .spinner-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 40px 0;
+    width: 100%;
 }
 
 .spinner {
     width: 50px;
     height: 50px;
-    border: 6px solid #f3f3f3;
-    border-top: 6px solid #3b82f6;
-    /* azul moderno */
+    border: 5px solid rgba(25, 25, 25, 0.3);
+    border-top: 5px solid #FFD700;
+    /* 🏆 Oro */
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .spinner-text {
-    font-size: 1rem;
-    color: #444;
+    font-size: 18px;
+    color: #FFD700;
+    /* 🏆 Oro */
     font-weight: 500;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes spin {
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }
