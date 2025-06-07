@@ -107,7 +107,7 @@ const Noticias = () => {
         console.log("Modal crear:", mostrarModalCrear, "quillRef:", !!quillRef.current, "initDone:", initDone);
 
         // Only initialize if modal is shown and editor ref exists
-        if (mostrarModalCrear && quillRef.current && !initDone) {
+        if (mostrarModalCrear && quillRef.current) {
             setInitDone(true);
             console.log("Initializing editor...");
 
@@ -153,6 +153,9 @@ const Noticias = () => {
                     try {
                         editor.focus();
                         console.log("Editor focused successfully");
+
+                        // Enable keyboard input explicitly
+                        editor.enable();
                     } catch (focusError) {
                         console.warn("Could not focus editor:", focusError);
                     }
@@ -167,10 +170,10 @@ const Noticias = () => {
             initializeEditor();
 
             // Second attempt after a short delay
-            setTimeout(initializeEditor, 300);
+            setTimeout(initializeEditor, 100);
 
             // Third attempt after a longer delay
-            setTimeout(initializeEditor, 800);
+            setTimeout(initializeEditor, 300);
         }
 
         return () => setInitDone(false);
@@ -226,6 +229,9 @@ const Noticias = () => {
                     try {
                         editor.focus();
                         console.log("Edit editor focused successfully");
+
+                        // Enable keyboard input explicitly
+                        editor.enable();
                     } catch (focusError) {
                         console.warn("Could not focus edit editor:", focusError);
                     }
@@ -240,10 +246,10 @@ const Noticias = () => {
             initializeEditEditor();
 
             // Second attempt after a short delay
-            setTimeout(initializeEditEditor, 300);
+            setTimeout(initializeEditEditor, 100);
 
             // Third attempt after a longer delay
-            setTimeout(initializeEditEditor, 800);
+            setTimeout(initializeEditEditor, 300);
         }
     }, [mostrarModalEditar]);
 
@@ -516,7 +522,7 @@ const Noticias = () => {
                             />
 
                             <ReactQuill
-                                key={`editor-create-${Date.now()}`}
+                                key={`editor-create-${mostrarModalCrear}-${Date.now()}`}
                                 ref={quillRef}
                                 className="editor-noticia quill-visible"
                                 theme="snow"
@@ -542,17 +548,12 @@ const Noticias = () => {
                                         matchVisual: false
                                     },
                                     history: {
-                                        delay: 3000,
-                                        maxStack: 20,
+                                        delay: 1000,
+                                        maxStack: 100,
                                         userOnly: true
                                     },
                                     keyboard: {
-                                        bindings: {
-                                            // Disable any custom key bindings that might interfere with typing
-                                            tab: false,
-                                            'indent tab': false,
-                                            'outdent tab': false
-                                        }
+                                        bindings: {}
                                     }
                                 }}
                                 bounds=".modal-carta.crear"
@@ -580,7 +581,7 @@ const Noticias = () => {
                             />
 
                             <ReactQuill
-                                key={`editor-edit-${Date.now()}`}
+                                key={`editor-edit-${mostrarModalEditar}-${Date.now()}`}
                                 ref={quillEditRef}
                                 className="editor-noticia quill-visible"
                                 theme="snow"
@@ -606,17 +607,12 @@ const Noticias = () => {
                                         matchVisual: false
                                     },
                                     history: {
-                                        delay: 3000,
-                                        maxStack: 20,
+                                        delay: 1000,
+                                        maxStack: 100,
                                         userOnly: true
                                     },
                                     keyboard: {
-                                        bindings: {
-                                            // Disable any custom key bindings that might interfere with typing
-                                            tab: false,
-                                            'indent tab': false,
-                                            'outdent tab': false
-                                        }
+                                        bindings: {}
                                     }
                                 }}
                                 bounds=".modal-carta.crear"
