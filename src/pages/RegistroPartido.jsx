@@ -171,6 +171,35 @@ const RegistroPartido = () => {
             return;
         }
 
+        // Preparar las estadísticas de los jugadores
+        const playerStatistics = [];
+
+        // Procesar jugadores del equipo A
+        jugadoresSeleccionadosA.forEach(playerId => {
+            if (estadisticas[playerId]) {
+                playerStatistics.push({
+                    playerId: Number(playerId),
+                    teamId: Number(equipoAId),
+                    goals: Number(estadisticas[playerId].goles || 0),
+                    assists: Number(estadisticas[playerId].asistencias || 0),
+                    ownGoals: Number(estadisticas[playerId].autogoles || 0)
+                });
+            }
+        });
+
+        // Procesar jugadores del equipo B
+        jugadoresSeleccionadosB.forEach(playerId => {
+            if (estadisticas[playerId]) {
+                playerStatistics.push({
+                    playerId: Number(playerId),
+                    teamId: Number(equipoBId),
+                    goals: Number(estadisticas[playerId].goles || 0),
+                    assists: Number(estadisticas[playerId].asistencias || 0),
+                    ownGoals: Number(estadisticas[playerId].autogoles || 0)
+                });
+            }
+        });
+
         // Crear el DTO según la estructura requerida por el backend
         const partidoData = {
             tournamentId: Number(torneoId) || 0,
@@ -184,6 +213,7 @@ const RegistroPartido = () => {
             mentionTeamBId: Number(mencionB) || 0,
             videoLink: linkVideo.startsWith("http") ? linkVideo.trim() : null,
             observations: observaciones.trim() || "Sin observaciones",
+            playerStatistics: playerStatistics
         };
 
         console.log("📤 Enviando datos al backend:", JSON.stringify(partidoData, null, 2));
@@ -211,7 +241,7 @@ const RegistroPartido = () => {
                         <label>Modalidad:</label>
                         <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value)}>
                             <option value="">Seleccionar Rol</option>
-                            {roles.filter(rol => rol.role === "ARBITRO").map((rol, index) => (
+                            {roles.filter(rol => ["SUPERADMIN", "ADMIN", "MODERADOR", "ARBITRO"].includes(rol.role)).map((rol, index) => (
                                 <option key={index} value={rol.role}>{rol.modalityName}</option>
                             ))}
                         </select>
@@ -459,7 +489,7 @@ const RegistroPartido = () => {
                 </div>
 
                 {/* Botón de enviar */}
-                <button type="submit" className="registro-button" disabled={selectedRole !== "ARBITRO"}>Registrar Partido</button>
+                <button type="submit" className="registro-button" disabled={!["ARBITRO", "SUPERADMIN", "ADMIN"].includes(selectedRole)}>Registrar Partido</button>
             </form>
         </div>
     );
