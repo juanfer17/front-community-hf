@@ -70,10 +70,29 @@
   color: #f9fafb;
 }
 
-.btn-eliminar {
+.noticia-actions {
   position: absolute;
   top: 10px;
   right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.btn-editar {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-editar:hover {
+  background: #2563eb;
+}
+
+.btn-eliminar {
   background: #ef4444;
   color: white;
   border: none;
@@ -195,8 +214,12 @@
   padding: 30px;
   width: 95%;
   max-width: 750px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-carta.crear h3 {
@@ -233,10 +256,45 @@
   background-color: #1e40af;
 }
 
-/* 🎨 Editor solo en crear */
+/* 🎨 Editor de foro */
+.editor-container {
+  margin-bottom: 20px;
+  position: relative;
+  max-height: 60vh;
+  overflow: visible;
+}
+
+.forum-editor {
+  margin-bottom: 10px;
+}
+
 .modal-carta.crear .ql-toolbar {
   background: #f1f5f9 !important;
   border: 1px solid #cbd5e1 !important;
+  border-radius: 8px 8px 0 0 !important;
+  padding: 8px !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 5px !important;
+}
+
+.modal-carta.crear .ql-toolbar button {
+  height: 28px !important;
+  width: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+}
+
+.modal-carta.crear .ql-toolbar button:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.modal-carta.crear .ql-toolbar .ql-active {
+  background-color: #dbeafe !important;
+  color: #2563eb !important;
 }
 
 .modal-carta.crear .ql-container {
@@ -244,8 +302,12 @@
   color: black !important;
   border: 1px solid #cbd5e1 !important;
   border-top: none;
+  border-radius: 0 0 8px 8px !important;
   overflow-y: auto;
-  max-height: 800px;
+  max-height: 50vh;
+  min-height: 250px !important;
+  display: block !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05) !important;
 }
 
 .modal-carta.crear .ql-editor {
@@ -253,7 +315,352 @@
   font-size: 15px;
   padding: 15px;
   background-color: #ffffff !important;
+  min-height: 200px !important;
+  display: block !important;
+  position: relative !important;
+  z-index: 1 !important;
+  visibility: visible !important;
+  line-height: 1.6 !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
+
+.modal-carta.crear .ql-editor p {
+  margin-bottom: 1em !important;
+}
+
+.modal-carta.crear .ql-editor h1, 
+.modal-carta.crear .ql-editor h2, 
+.modal-carta.crear .ql-editor h3 {
+  margin-top: 1.5em !important;
+  margin-bottom: 0.5em !important;
+  font-weight: bold !important;
+}
+
+.modal-carta.crear .ql-editor blockquote {
+  border-left: 4px solid #cbd5e1 !important;
+  padding-left: 16px !important;
+  color: #64748b !important;
+  font-style: italic !important;
+}
+
+.modal-carta.crear .ql-editor pre {
+  background-color: #f8fafc !important;
+  border-radius: 4px !important;
+  padding: 10px !important;
+  font-family: monospace !important;
+}
+
+.modal-carta.crear .ql-editor img {
+  max-width: 100% !important;
+  border-radius: 4px !important;
+  margin: 10px 0 !important;
+}
+
+.modal-carta.crear .ql-editor a {
+  color: #2563eb !important;
+  text-decoration: underline !important;
+}
+
+/* Estilos para el contenedor de vista previa */
+.preview-container {
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  max-height: 60vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-header h4 {
+  margin: 0;
+  color: #1e40af;
+  font-size: 16px;
+}
+
+.preview-content {
+  color: #1e293b;
+  font-size: 15px;
+  line-height: 1.6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 10px;
+}
+
+.preview-content p {
+  margin-bottom: 1em;
+}
+
+.preview-content h1, 
+.preview-content h2, 
+.preview-content h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+.preview-content blockquote {
+  border-left: 4px solid #cbd5e1;
+  padding-left: 16px;
+  color: #64748b;
+  font-style: italic;
+}
+
+.preview-content pre {
+  background-color: #f1f5f9;
+  border-radius: 4px;
+  padding: 10px;
+  font-family: monospace;
+}
+
+.preview-content img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.preview-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Estilos para los botones de acción */
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+.btn-preview, .btn-exit-preview {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-preview:hover, .btn-exit-preview:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.btn-exit-preview {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.btn-exit-preview:hover {
+  background-color: #fecaca;
+  color: #991b1b;
+}
+
+/* Estilos para el contenedor de carga de archivos */
+.file-upload-container {
+  margin-bottom: 20px;
+}
+
+.file-upload-label {
+  display: inline-block;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.file-upload-label:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.file-upload-label span {
+  margin-right: 10px;
+}
+
+.file-input {
+  position: absolute;
+  left: -9999px;
+}
+
+.file-name {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #475569;
+  margin-top: 5px;
+  display: inline-block;
+}
+
+/* Estilos para los botones de acción del formulario */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  position: sticky;
+  bottom: 0;
+  background-color: #ffffff;
+  padding: 15px 0 5px 0;
+  border-top: 1px solid #f1f5f9;
+  z-index: 10;
+  margin-bottom: 5px;
+}
+
+.btn-cancel {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.btn-publish {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.btn-publish:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+}
+
+/* Estilos específicos para asegurar que el editor sea visible */
+.quill-visible {
+  display: block !important;
+  min-height: 250px !important;
+  margin-bottom: 20px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+  transform: translateZ(0) !important; /* Force hardware acceleration */
+  will-change: transform !important; /* Hint to browser about changes */
+  background-color: white !important; /* Ensure background is visible */
+  border: 2px solid #3b82f6 !important; /* Make border more visible */
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4) !important; /* Add glow effect */
+}
+
+.quill-visible .ql-toolbar {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 11 !important; /* Higher z-index than container */
+  pointer-events: auto !important;
+  background-color: #f8fafc !important; /* Light background for toolbar */
+  border: 1px solid #3b82f6 !important; /* Blue border */
+  border-bottom: 2px solid #3b82f6 !important; /* Thicker bottom border */
+  padding: 8px !important;
+  margin-bottom: 0 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.quill-visible .ql-container {
+  display: block !important;
+  min-height: 250px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 10 !important;
+  pointer-events: auto !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  background-color: white !important;
+  border: 1px solid #3b82f6 !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.quill-visible .ql-editor {
+  display: block !important;
+  min-height: 200px !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 10 !important;
+  opacity: 1 !important;
+  height: auto !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+  transform: translateZ(0) !important;
+  will-change: transform !important;
+  background-color: white !important;
+  color: #1e293b !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  padding: 15px !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+/* en tu noticias.css */
+.ql-container {
+  min-height: 250px !important;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.ql-toolbar {
+  z-index: 101;
+}
+
+.modal-carta.crear {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.ql-container {
+  min-height: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.ql-editor {
+  min-height: 200px;
+}
+
 
 /* ❌ Cerrar */
 .modal-cerrar {

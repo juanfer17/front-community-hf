@@ -4,12 +4,35 @@ const getState = ({ getStore, getActions, setStore }) => {
     const secureFetch = async (url, options = {}) => {
         const token = localStorage.getItem("token");
         if (!options.headers) options.headers = {};
+
+        // Verificar si estamos enviando FormData (multipart/form-data)
+        const isFormData = options.body instanceof FormData;
+
+        // Solo agregar el header Authorization
         options.headers["Authorization"] = `Bearer ${token}`;
 
+        // Si es FormData, NO agregar Content-Type para que el navegador lo establezca automáticamente
+        // con el boundary correcto
+        if (isFormData && options.headers["Content-Type"]) {
+            delete options.headers["Content-Type"];
+        }
+
         try {
+            // Log the request for debugging
+            console.log(`Making ${options.method || 'GET'} request to ${url}`);
+            if (isFormData) {
+                console.log('Sending FormData');
+            }
+
             const response = await fetch(url, options);
 
-            if (response.status === 401 || response.status === 403) {
+            // Log the response status for debugging
+            console.log(`Response status: ${response.status}`);
+
+            // Para el caso específico de crear noticias, no cerrar sesión en caso de 403
+            // ya que podría ser un problema de permisos y no de autenticación
+            if ((response.status === 401 || response.status === 403) && 
+                !url.includes("/news")) {
                 getActions().logout(); // Cierra sesión automáticamente
                 return { success: false, message: "Sesión expirada. Por favor, inicia sesión nuevamente." };
             }
@@ -119,7 +142,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 
                     if (!response.ok) throw new Error("Error al crear la convocatoria");
 
-                    const data = await response.json();
+                    // Parsear la respuesta pero no necesitamos usar el valor
+                    await response.json();
 
                     alert("Convocatoria creada con éxito.");
                     getActions().getConvocatorias(modalidad); // Recargar convocatorias
@@ -156,39 +180,102 @@ const getState = ({ getStore, getActions, setStore }) => {
                     const data = await resp.json();
                     return {success: resp.ok, message: data.message || data.error};
 
-                } catch (error) {
+                } catch (_error) {
+                    console.error("Error al crear equipo:", _error);
                     return {success: false, message: "Error al conectar con el servidor"};
                 }
             },
 
-            crearNoticia: async (titulo, contenido, imagen) => {
+            crearNoticia: async (newsRequest) => {
                 try {
-                    let formData = new FormData();
-                    formData.append("titulo", titulo);
-                    formData.append("contenido", contenido);
-                    if (imagen) {
-                        formData.append("imagen", imagen);
+                    // Extraer los campos del objeto NewsRequest
+                    const { title, content, imageUrl, modality } = newsRequest;
+
+                    // Log the request data for debugging
+                    console.log("Creating news with:", { title, content, hasImage: !!imageUrl, modality });
+
+                    // Intentar primero con JSON (application/json)
+                    let jsonData = {
+                        title: title,
+                        content: content
+                    };
+
+                    // Si hay una imagen, convertirla a base64 y agregarla al JSON
+                    if (imageUrl) {
+                        try {
+                            console.log("Converting image to base64:", imageUrl.name, imageUrl.type, imageUrl.size);
+                            const reader = new FileReader();
+                            const imageBase64Promise = new Promise((resolve, reject) => {
+                                reader.onload = () => {
+                                    // Obtener la parte base64 de la URL de datos
+                                    const base64String = reader.result.split(',')[1];
+                                    resolve(base64String);
+                                };
+                                reader.onerror = reject;
+                                reader.readAsDataURL(imageUrl);
+                            });
+
+                            // Esperar a que se complete la conversión a base64
+                            const base64String = await imageBase64Promise;
+                            jsonData.imageUrl = base64String;
+                            console.log("Image converted to base64 successfully");
+                        } catch (imageError) {
+                            console.error("Error converting image to base64:", imageError);
+                            // Continuar sin la imagen si hay un error
+                        }
                     }
 
                     const token = localStorage.getItem("token");
+                    const roles = localStorage.getItem("roles");
+
+                    console.log("Token available:", !!token);
+                    console.log("Roles:", roles);
 
                     if (!token) {
                         return {success: false, message: "No tienes una sesión activa"};
                     }
 
-                    const response = await fetch(`${BACKEND_URL}/noticias`, {
+                    // Enviar como JSON (application/json)
+                    const response = await secureFetch(`${BACKEND_URL}/${modality}/news`, {
                         method: "POST",
                         headers: {
-                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
                         },
-                        body: formData,
+                        body: JSON.stringify(jsonData),
                     });
 
-                    const data = await response.json();
-                    return {success: response.ok, message: data.message || data.error, imagen_url: data.imagen_url};
+                    if (!response.ok) {
+                        console.error("Error response:", response.status, response.statusText);
+                    }
+
+                    // Verificar si hay contenido antes de intentar parsear como JSON
+                    const contentLength = response.headers?.get("content-length");
+                    let data = {};
+
+                    if (contentLength && parseInt(contentLength) > 0) {
+                        try {
+                            data = await response.json();
+                            console.log("Response data:", data);
+                        } catch (parseError) {
+                            console.error("Error parsing JSON response:", parseError);
+                            return {success: false, message: `Error al procesar la respuesta: ${parseError.message}`};
+                        }
+                    } else {
+                        console.warn("Empty response received");
+                        // Si la respuesta está vacía pero el status es OK, considerarlo como éxito
+                        if (response.ok) {
+                            return {success: true, message: "Operación completada con éxito"};
+                        }
+                        // Si la respuesta está vacía y el status no es OK, considerarlo como error
+                        return {success: false, message: `Error ${response.status}: ${response.statusText || "Error desconocido"}`};
+                    }
+
+                    return {success: response.ok, message: data.message || data.error || "Operación completada", imagen_url: data.imagen_url};
 
                 } catch (error) {
-                    return {success: false, message: "Error al conectar con el servidor"};
+                    console.error("Error al crear noticia:", error);
+                    return {success: false, message: `Error al conectar con el servidor: ${error.message}`};
                 }
             },
 
@@ -291,22 +378,108 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            editarNoticia: async (id, titulo, contenido, imagenUrl) => {
+            editarNoticia: async (id, newsRequest) => {
                 try {
-                    const token = localStorage.getItem("token"); // 🔹 Obtiene el token
-                    const response = await fetch(`${BACKEND_URL}/noticias/${id}`, {
+                    // Extraer los campos del objeto NewsRequest
+                    const { title, content, imageUrl, modality } = newsRequest;
+
+                    // Log the request data for debugging
+                    console.log("Editing news with ID:", id, { title, content, hasImage: !!imageUrl, modality });
+
+                    // Usar JSON para la solicitud
+                    let jsonData = {
+                        title: title,
+                        content: content
+                    };
+
+                    if (modality) {
+                        jsonData.modality = modality;
+                    }
+
+                    // Si hay una imagen, convertirla a base64 y agregarla al JSON
+                    if (imageUrl) {
+                        try {
+                            console.log("Converting image to base64 for edit:", imageUrl.name, imageUrl.type, imageUrl.size);
+                            const reader = new FileReader();
+                            const imageBase64Promise = new Promise((resolve, reject) => {
+                                reader.onload = () => {
+                                    // Obtener la parte base64 de la URL de datos
+                                    const base64String = reader.result.split(',')[1];
+                                    resolve(base64String);
+                                };
+                                reader.onerror = reject;
+                                reader.readAsDataURL(imageUrl);
+                            });
+
+                            // Esperar a que se complete la conversión a base64
+                            const base64String = await imageBase64Promise;
+                            jsonData.imageUrl = base64String;
+                            console.log("Image converted to base64 successfully for edit");
+                        } catch (imageError) {
+                            console.error("Error converting image to base64 for edit:", imageError);
+                            // Continuar sin la imagen si hay un error
+                        }
+                    }
+
+                    const token = localStorage.getItem("token");
+                    const roles = localStorage.getItem("roles");
+
+                    console.log("Token available for edit:", !!token);
+                    console.log("Roles for edit:", roles);
+
+                    if (!token) {
+                        return {success: false, message: "No tienes una sesión activa"};
+                    }
+
+                    // Usar la URL correcta según la modalidad
+                    const url = modality 
+                        ? `${BACKEND_URL}/${modality}/news/${id}` 
+                        : `${BACKEND_URL}/noticias/${id}`;
+
+                    console.log("Using URL for edit:", url);
+
+                    // Enviar como JSON (application/json)
+                    const response = await secureFetch(url, {
                         method: "PUT",
                         headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`  // 🔹 Agrega el token aquí
+                            "Content-Type": "application/json"
                         },
-                        body: JSON.stringify({titulo, contenido, imagenUrl})
+                        body: JSON.stringify(jsonData),
                     });
-                    if (!response.ok) throw new Error("Error al editar noticia");
 
-                    getActions().obtenerNoticias();
+                    if (!response.ok) {
+                        console.error("Error response from edit:", response.status, response.statusText);
+                    }
+
+                    // Verificar si hay contenido antes de intentar parsear como JSON
+                    const contentLength = response.headers?.get("content-length");
+                    let data = {};
+
+                    if (contentLength && parseInt(contentLength) > 0) {
+                        try {
+                            data = await response.json();
+                            console.log("Response data from edit:", data);
+                        } catch (parseError) {
+                            console.error("Error parsing JSON response from edit:", parseError);
+                            return {success: false, message: `Error al procesar la respuesta: ${parseError.message}`};
+                        }
+                    } else {
+                        console.warn("Empty response received from edit");
+                        // Si la respuesta está vacía pero el status es OK, considerarlo como éxito
+                        if (response.ok) {
+                            return {success: true, message: "Noticia editada con éxito"};
+                        }
+                        // Si la respuesta está vacía y el status no es OK, considerarlo como error
+                        return {success: false, message: `Error ${response.status}: ${response.statusText || "Error desconocido"}`};
+                    }
+
+                    // Recargar noticias después de editar
+                    getActions().obtenerNoticias(modality);
+
+                    return {success: response.ok, message: data.message || data.error || "Noticia editada con éxito"};
                 } catch (error) {
                     console.error("Error al editar noticia:", error);
+                    return {success: false, message: `Error al conectar con el servidor: ${error.message}`};
                 }
             },
 
@@ -358,20 +531,66 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            eliminarNoticia: async (id) => {
+            eliminarNoticia: async (id, modality) => {
                 try {
-                    const token = localStorage.getItem("token"); // 🔹 Obtiene el token
-                    const response = await fetch(`${BACKEND_URL}/noticias/${id}`, {
+                    console.log("Eliminando noticia con ID:", id, "Modalidad:", modality);
+
+                    const token = localStorage.getItem("token");
+                    const roles = localStorage.getItem("roles");
+
+                    console.log("Token available for delete:", !!token);
+                    console.log("Roles for delete:", roles);
+
+                    if (!token) {
+                        console.error("No hay token disponible");
+                        return { success: false, message: "No tienes una sesión activa" };
+                    }
+
+                    // Usar la URL correcta según la modalidad
+                    const url = modality 
+                        ? `${BACKEND_URL}/${modality}/news/${id}` 
+                        : `${BACKEND_URL}/noticias/${id}`;
+
+                    console.log(`Making DELETE request to ${url}`);
+
+                    // Usar secureFetch en lugar de fetch directo
+                    const response = await secureFetch(url, {
                         method: "DELETE",
                         headers: {
-                            "Authorization": `Bearer ${token}`  // 🔹 Agrega el token aquí
+                            "Content-Type": "application/json"
                         }
                     });
-                    if (!response.ok) throw new Error("Error al eliminar noticia");
 
-                    getActions().obtenerNoticias();
+                    console.log(`Response status from delete: ${response.status}`);
+
+                    if (!response.ok) {
+                        const errorMessage = `Error al eliminar noticia: ${response.status} ${response.statusText}`;
+                        console.error(errorMessage);
+                        return { success: false, message: errorMessage };
+                    }
+
+                    // Intentar parsear la respuesta JSON si existe
+                    let data = {};
+                    try {
+                        const contentLength = response.headers.get("content-length");
+                        if (contentLength && parseInt(contentLength) > 0) {
+                            data = await response.json();
+                            console.log("Response data from delete:", data);
+                        }
+                    } catch (parseError) {
+                        console.warn("No JSON response or empty response from delete:", parseError);
+                    }
+
+                    // Recargar noticias después de eliminar
+                    getActions().obtenerNoticias(modality);
+
+                    return { 
+                        success: true, 
+                        message: data.message || "Noticia eliminada con éxito" 
+                    };
                 } catch (error) {
                     console.error("Error al eliminar noticia:", error);
+                    return { success: false, message: `Error al eliminar noticia: ${error.message}` };
                 }
             },
 
@@ -637,7 +856,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     if (!response.ok) throw new Error(data.error || "Error al obtener ofertas");
 
                     setStore({ofertas: data});
-                } catch (error) {
+                } catch (_error) {
+                    console.error("Error al obtener ofertas:", _error);
                     setStore({ofertas: []});
                     return {success: false};
                 }
@@ -808,7 +1028,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     } else {
                         return { success: false, message: data.message || "Credenciales incorrectas." };
                     }
-                } catch (error) {
+                } catch (_error) {
+                    console.error("Error de conexión con el servidor:", _error);
                     return { success: false, message: "Error de conexión con el servidor" };
                 }
             },
@@ -861,12 +1082,41 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             obtenerNoticias: async (modalidad) => {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/${modalidad}/news`);
-                    if (!response.ok) throw new Error("Error al obtener noticias");
-                    const data = await response.json();
-                    setStore({noticias: data});
+                    // Si no se proporciona modalidad, usar "AIC" como valor predeterminado
+                    const modalidadActual = modalidad || "AIC";
+                    console.log("Obteniendo noticias para modalidad:", modalidadActual);
+
+                    const url = `${BACKEND_URL}/${modalidadActual}/news`;
+                    console.log(`Making GET request to ${url}`);
+
+                    // Usar secureFetch en lugar de fetch directo
+                    const response = await secureFetch(url, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    });
+
+                    console.log(`Response status from get news: ${response.status}`);
+
+                    if (!response.ok) {
+                        console.error(`Error al obtener noticias: ${response.status} ${response.statusText}`);
+                        setStore({noticias: []});
+                        return;
+                    }
+
+                    // Intentar parsear la respuesta como JSON independientemente del content-length
+                    try {
+                        const data = await response.json();
+                        console.log(`Noticias obtenidas: ${data.length}`);
+                        setStore({noticias: data});
+                    } catch (parseError) {
+                        console.error("Error parsing JSON response from get news:", parseError);
+                        setStore({noticias: []});
+                    }
                 } catch (error) {
                     console.error("Error al obtener noticias:", error);
+                    setStore({noticias: []});
                 }
             },
 
